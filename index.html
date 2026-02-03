@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seni Seviyorum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --p: #ff416c; --s: #ff4b2b; --gold: #ffd700; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(45deg, var(--p), var(--s)); color: white; text-align: center; min-height: 100vh; overflow-x: hidden; display: flex; align-items: center; justify-content: center; cursor: crosshair; }
+        
+        /* Ekranlar */
+        #login-screen, #gallery-screen, #main-content { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; }
+        #login-screen { z-index: 5000; background: inherit; justify-content: center; }
+        #main-content { display: none; z-index: 1000; overflow-y: auto; padding: 40px 0; scroll-behavior: smooth; }
+        #gallery-screen { display: none; z-index: 4000; background: inherit; justify-content: center; }
+
+        .card { background: rgba(255, 255, 255, 0.2); padding: 25px; border-radius: 30px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.3); width: 85%; max-width: 380px; margin-bottom: 25px; position: relative; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+        /* PLAK SİMGESİ (Sağ Alt) */
+        .vinyl-record {
+            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
+            background: #111; border-radius: 50%; border: 2px solid #333;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); z-index: 9999;
+            animation: rotateVinyl 3s linear infinite; display: flex; align-items: center; justify-content: center;
+        }
+        .vinyl-record::before { content: ''; width: 20px; height: 20px; background: var(--gold); border-radius: 50%; border: 4px solid #111; }
+        @keyframes rotateVinyl { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* PARILTILI YILDIZLAR */
+        .sparkle { position: fixed; pointer-events: none; background: white; border-radius: 50%; animation: sparkleAnim 0.8s linear forwards; z-index: 9998; }
+        @keyframes sparkleAnim { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        .love-note { font-family: 'Great Vibes', cursive; font-size: 2.2rem; text-shadow: 2px 2px 10px rgba(255, 0, 0, 0.5); }
+        .photo-container { width: 180px; height: 180px; border-radius: 20px; border: 5px solid white; margin: 0 auto 15px; overflow: hidden; transform: rotate(-2deg); }
+        .photo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .btn { background: white; color: var(--p); padding: 12px 25px; border-radius: 50px; font-weight: bold; margin: 10px; cursor: pointer; border: none; font-size: 14px; }
+        
+        .flying-heart { position: fixed; color: white; pointer-events: none; z-index: 9997; animation: floatUp linear infinite; top: 100%; opacity: 0.8; }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(-115vh); opacity: 0; } }
+
+        .map-section { width: 100%; height: 280px; border-radius: 20px; overflow: hidden; border: 3px solid white; }
+        .heart-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; width: 100%; max-height: 60vh; overflow-y: auto; }
+        .gallery-photo { width: 100%; aspect-ratio: 1/1; border: 3px solid white; border-radius: 12px; object-fit: cover; }
+        
+        #zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 6000; }
+        #zoom-img { max-width: 90%; max-height: 85%; border: 3px solid white; border-radius: 15px; }
+        input { width: 85%; padding: 14px; border-radius: 25px; border: none; text-align: center; }
+    </style>
+</head>
+<body onload="startHearts()" onmousemove="createSparkle(event)" ontouchmove="createSparkle(event)">
+
+    <div class="vinyl-record"></div>
+
+    <div id="zoom-overlay" onclick="this.style.display='none'">
+        <img id="zoom-img" src="">
+    </div>
+
+    <div id="login-screen">
+        <div class="card">
+            <h2 style="font-family:'Great Vibes', cursive; font-size: 2.5rem;">Hoş Geldin Sevgilim ❤️</h2>
+            <input type="password" id="passInput" placeholder="Aşk şifremiz...">
+            <br><br>
+            <button class="btn" onclick="checkPass()">Sisteme Gir</button>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div class="card">
+            <div class="photo-container"><img src="biz.jpeg"></div>
+            <h1>Birlikte Bir Ömre ❤️</h1>
+            <div id="timer" style="display: flex; justify-content: space-around; margin: 15px 0; font-size: 18px;">
+                <div><b id="d">0</b><br><small>Gün</small></div>
+                <div><b id="h">0</b><br><small>Saat</small></div>
+                <div><b id="m">0</b><br><small>Dak</small></div>
+                <div><b id="s">0</b><br><small>Sn</small></div>
+            </div>
+            <button class="btn" onclick="openGallery()">📸 Anılarımız</button>
+            <a href="https://www.youtube.com/watch?v=ImnV6Yp9QVE" target="_blank" class="btn" style="text-decoration:none">🎵 Şarkımız</a>
+        </div>
+
+        <div class="card">
+            <h3 style="margin:0;">✨ Sana Bir Mesajım Var</h3>
+            <div id="surprise-text" style="font-family:'Great Vibes', cursive; font-size:1.8rem; color:var(--gold); margin: 10px 0;">...</div>
+            <button class="btn" onclick="showSurprise()" style="background: var(--p); color: white;">Bana Bir Şey Söyle ❤️</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">✍️ Kalbimden Not</h3>
+            <div class="love-note">"Her gülüşünde huzuru buluyorum. İyi ki benimsin."</div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">📍 İlk Tanıştığımız Yer</h3>
+            <div class="map-section">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3011.666344561066!2d28.7188!3d40.9788!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDU4JzQzLjciTiAyOMKwNDMnMDcuNyJF!5e0!3m2!1str!2str!4v16275000000002" width="100%" height="100%" style="border:0;" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div id="gallery-screen">
+        <h2 style="font-family:'Great Vibes', cursive; font-size:3rem;">Anılarımız ❤️</h2>
+        <div class="heart-gallery" id="photoHeart"></div>
+        <button class="btn" onclick="closeGallery()">Geri Dön</button>
+    </div>
+
+    <script>
+        const messages = ["Sen benim en güzel manzaramsın. ❤️", "Gülüşün kalbimdeki en güzel şarkı. ✨", "İyi ki benimlesin...", "Seni her gün daha çok seviyorum."];
+
+        function createSparkle(e) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            const x = e.pageX || e.touches[0].pageX;
+            const y = e.pageY || e.touches[0].pageY;
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            const size = Math.random() * 8 + 2;
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 800);
+        }
+
+        function showSurprise() {
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            document.getElementById('surprise-text').innerText = randomMsg;
+        }
+
+        function checkPass() {
+            if (document.getElementById("passInput").value === "1234") {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("main-content").style.display = "flex";
+                document.body.style.overflowY = "auto";
+                startTimer();
+            }
+        }
+
+        function startHearts() {
+            setInterval(() => {
+                const h = document.createElement('div');
+                h.className = 'flying-heart'; h.innerHTML = '❤️';
+                h.style.left = Math.random() * 100 + 'vw';
+                h.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                h.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                document.body.appendChild(h);
+                setTimeout(() => h.remove(), 6000);
+            }, 400);
+        }
+
+        function openGallery() {
+            document.getElementById("gallery-screen").style.display = "flex";
+            const container = document.getElementById("photoHeart");
+            container.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const img = document.createElement('img');
+                img.src = `f${i}.jpg`;
+                img.className = 'gallery-photo';
+                img.onclick = function() {
+                    document.getElementById('zoom-img').src = this.src;
+                    document.getElementById('zoom-overlay').style.display = 'flex';
+                };
+                container.appendChild(img);
+            }
+        }
+
+        function closeGallery() { document.getElementById("gallery-screen").style.display = "none"; }
+
+        function startTimer() {
+            const start = new Date(2025, 6, 28); 
+            setInterval(() => {
+                const diff = new Date() - start;
+                document.getElementById('d').innerText = Math.floor(diff/(1000*60*60*24));
+                document.getElementById('h').innerText = Math.floor((diff/(1000*60*60))%24);
+                document.getElementById('m').innerText = Math.floor((diff/(1000*60))%60);
+                document.getElementById('s').innerText = Math.floor((diff/1000)%60);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
